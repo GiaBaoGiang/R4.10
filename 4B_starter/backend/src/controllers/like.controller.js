@@ -57,6 +57,21 @@ export const getMyLikes = async (req, res, next) => {
  */
 export const createLike = async (req, res, next) => {
   try {
+    const userId = req.user.id;
+    const { movieId } = req.body;
+
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ success: false, message: "Film non trouvé" });
+    }
+
+    const existingLike = await Like.findOne({ user: userId, movie: movieId });
+    if (existingLike) {
+      return res.status(400).json({ success: false, message: "Vous avez déjà aimé ce film" });
+    }
+    const like = await Like.create({ user: userId, movie: movieId });
+
+    res.status(201).json({ success: true, data: like });
   } catch (error) {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
@@ -68,5 +83,18 @@ export const createLike = async (req, res, next) => {
  * @access Private
  */
 export const deleteLike = async (req, res, next) => {
-  //TODO
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const like = await Like.findOneAndDelete({ _id: id, user: userId });
+
+    if (!like) {
+      return res.status(404).json({ success: false, message: "Like non trouvé" });
+    }
+
+    res.status(200).json({ success: true, message: "Like supprimé" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
 };
