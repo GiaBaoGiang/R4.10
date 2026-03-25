@@ -14,7 +14,9 @@ GET http://localhost:5402/api/likes/movie/699e9500fcb60464962bf5e4
   "count": 0,
   "data": []
 }
-renvoie la liste des likes du films
+
+
+---
 
 
 GET http://localhost:5402/api/likes/my-likes
@@ -24,6 +26,9 @@ GET http://localhost:5402/api/likes/my-likes
   "success": true,
   "data": []
 }
+
+
+--- 
 
 
 POST http://localhost:5402/api/likes/
@@ -46,6 +51,11 @@ body
     "__v": 0
   }
 }
+
+
+---
+
+
 
 DELETE http://localhost:5402/api/likes/69c3ea0a6a23bac80e2077f8
 
