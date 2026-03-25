@@ -1,0 +1,17 @@
+import Movie from '../models/Movie.js';
+
+// @desc    Obtenir tous les genres
+// @route   GET /api/genres
+// @access  Public
+export const getAllGenres = async (req, res, next) => {
+  try {
+    const genres = await Movie.distinct('genre');
+    res.status(200).json({
+      success: true,
+      count: genres.length,
+      data: genres
+    });
+  } catch (error) {
+    next(error);
+  }
+}
