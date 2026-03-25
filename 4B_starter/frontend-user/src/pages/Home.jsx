@@ -18,23 +18,43 @@ import { moviesAPI } from "../services/api";
 // Page d'accueil
 function Home() {
   // États locaux
-  const [movies, setMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [recentMovies, setRecentMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { isAuthenticated, user } = useAuth();
   const { error } = useNotification();
 
-  // Charger les films
-
   // Charger les films populaires
   const loadPopularMovies = async () => {
-    //TODO
+    try {
+      const popular = await moviesAPI.getPopular();
+      setPopularMovies(popular.data || popular);
+    } catch (err) {
+      console.error("Erreur chargement films populaires:", err);
+    }
   };
 
   // Charger les films récents
   const loadRecentMovies = async () => {
-    //TODO
+    try {
+      const recents = await moviesAPI.getRecent();
+      setRecentMovies(recents.data || recents);
+    } catch (err) {
+      console.error("Erreur chargement films recents", err);
+    }
   };
+
+  // Charger les films au montage du composant
+  useEffect(() => {
+    const loadAllMovies = async () => {
+      setLoading(true);
+      await loadPopularMovies();
+      await loadRecentMovies();
+      setLoading(false);
+    };
+    loadAllMovies();
+  }, []);
 
   // État de chargement
   if (loading) {
@@ -42,7 +62,7 @@ function Home() {
   }
 
   // Pas de films
-  if (movies.length === 0) {
+  if (popularMovies.length === 0 && recentMovies.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white">
         <Navbar />
@@ -59,14 +79,14 @@ function Home() {
 
   return (
     <div className="bg-black text-white min-h-screen">
-      <Navbar movies={movies} onSearch={""} />
+      <Navbar movies={popularMovies} onSearch={""} />
 
       {/* Hero Section */}
       <MovieHeroCarousel />
       {/* Movies Lists */}
       <div className="container mx-auto">
-        <MovieCarousel id="popular" title="Films populaires" movies={[]} />
-        <MovieCarousel id="recent" title="Films récents" movies={[]} />
+        <MovieCarousel id="popular" title="Films populaires" movies={popularMovies} />
+        <MovieCarousel id="recent" title="Films récents" movies={recentMovies} />
       </div>
 
       <Footer />

@@ -36,11 +36,39 @@ function MovieCard({ movie }) {
   const { isAuthenticated,  likedMovies, setLikedMovies } = useAuth();
 
   // Vérifier si le film est déjà liké par l'utilisateur
-
+  useEffect(() => {
+    if (isAuthenticated && likedMovies) {
+      const liked = likedMovies.some((likedMovie) => likedMovie._id === id);
+      setIsLiked(liked);
+    }
+  }, [isAuthenticated, likedMovies, id]);
 
   // Gérer le like d'un film
   const handleLike = async (e) => {
-    
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      warning("Veuillez vous connecter pour liker");
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        await likesAPI.unlike(movie._id);
+        setIsLiked(false);
+        setLikes(likes - 1);
+        success("Film retiré de vos favoris");
+      } else {
+        await likesAPI.like(movie._id);
+        setIsLiked(true);
+        setLikes(likes + 1);
+        success("Film ajouté à vos favoris");
+      }
+    } catch (err) {
+      error("Erreur lors du like du film");
+      console.error(err);
+    }
   };
 
   // Gérer la location d'un film
