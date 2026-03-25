@@ -33,15 +33,25 @@ function MovieCard({ movie }) {
   const [isLiked, setIsLiked] = useState(false);
   const { addToCart, isRented } = useCart();
   const { success, warning, error } = useNotification();
-  const { isAuthenticated, user, likedMovies } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
-  // Vérifier si le film est déjà liké par l'utilisateur
   useEffect(() => {
-    if (isAuthenticated() && likedMovies) {
-      const liked = likedMovies.some((likedMovie) => likedMovie._id === id);
-      setIsLiked(liked);
+    const movieLikes = Array.isArray(movie.likes) ? movie.likes : [];
+    setLikes(movieLikes.length);
+
+    if (!isAuthenticated()) {
+      setIsLiked(false);
+      return;
     }
-  }, [isAuthenticated, likedMovies, id]);
+
+    const currentUserId = user?._id || user?.id;
+    const liked = movieLikes.some((like) => {
+      const likeUserId = like?.user?._id || like?.user?.id || like?.user;
+      return String(likeUserId) === String(currentUserId);
+    });
+
+    setIsLiked(liked);
+  }, [isAuthenticated, user, movie.likes]);
 
   // Gérer le like d'un film
   const handleLike = async (e) => {
