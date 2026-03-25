@@ -8,7 +8,29 @@ import User from "../models/User.js";
  * @access Public
  */
 export const getLikesByMovie = async (req, res, next) => {
-  //TODO
+  try {
+    const { movieId } = req.params;
+
+    const likes = await Like.find({ movie: movieId })
+      .populate({
+        path: "user", 
+        model: User
+       });
+
+    res.status(200).json({
+      success: true,
+      count: likes.length,
+      data: likes.map((like) => ({
+        id: like._id,
+        user: like.user, 
+      })),
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ success: false, message: "ID de film invalide" });
+    }
+    next(error);
+  }
 };
 
 /**
@@ -17,7 +39,15 @@ export const getLikesByMovie = async (req, res, next) => {
  * @access Private
  */
 export const getMyLikes = async (req, res, next) => {
- //TODO
+  try {
+    const userId = req.user.id;
+
+    const likes = await Like.find({ user: userId }).populate("movie", "title");
+
+    res.status(200).json({ success: true, data: likes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
 };
 
 /**
@@ -26,7 +56,10 @@ export const getMyLikes = async (req, res, next) => {
  * @access Private
  */
 export const createLike = async (req, res, next) => {
-  //TODO
+  try {
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
 };
 
 /**
