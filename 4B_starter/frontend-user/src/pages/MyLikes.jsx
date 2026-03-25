@@ -9,7 +9,7 @@ import Button from "../components/common/Button";
 
 import { useAuth } from "../context/AuthContext";
 
-import { moviesAPI } from "../services/api";
+import { likesAPI } from "../services/api";
 
 function MyLikes() {
   const [likedMovies, setLikedMovies] = useState([]);
@@ -21,8 +21,14 @@ function MyLikes() {
     const loadLikedMovies = async () => {
       try {
         setLoading(true);
-        const data = await moviesAPI.getLikedByUser();
-        setLikedMovies(data.data || data);
+        // Consigne: appel direct GET /api/likes/my-likes
+        const response = await likesAPI.getMylikes();
+        const likes = response.data || [];
+        const movies = likes
+          .map((like) => like.movie)
+          .filter(Boolean);
+
+        setLikedMovies(movies);
       } catch (err) {
         console.error("Erreur chargement likes:", err);
       } finally {

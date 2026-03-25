@@ -70,7 +70,7 @@ function MovieCard({ movie }) {
         const currentUserId = user?._id || user?.id;
         const myLike = likesList.find((like) => {
           const likeUserId = like.user?._id || like.user?.id || like.user;
-          return likeUserId === currentUserId;
+          return String(likeUserId) === String(currentUserId);
         });
 
         if (!myLike?.id) {

@@ -42,7 +42,9 @@ export const getMyLikes = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    const likes = await Like.find({ user: userId }).populate("movie", "title");
+    const likes = await Like.find({ user: userId })
+      .populate("movie")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, data: likes });
   } catch (error) {
