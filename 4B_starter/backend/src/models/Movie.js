@@ -172,9 +172,16 @@ movieSchema.statics.getByGenre = function (genre) {
 };
 
 // Obtenir les films likés par un utilisateur
-movieSchema.statics.getLikedByUser = function (userId) {
+movieSchema.statics.getLikedByUser = async function (userId) {
+  const likes = await Like.find({ user: userId }).select("movie");
+  const movieIds = likes.map((like) => like.movie);
+
+  if (movieIds.length === 0) {
+    return [];
+  }
+
   return this.find({
-    likes: userId,
+    _id: { $in: movieIds },
     isAvailable: true,
   }).sort({ rating: -1 });
 };

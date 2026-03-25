@@ -30,8 +30,10 @@ function MyLikes() {
       }
     };
 
-    if (isAuthenticated) {
+    if (isAuthenticated()) {
       loadLikedMovies();
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -45,7 +47,6 @@ function MyLikes() {
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center px-4">
           <div className="text-center">
-            <div className="text-6xl mb-6">🎬</div>
             <h2 className="text-3xl font-bold mb-4">Mes likes</h2>
             <p className="text-gray-400 text-lg mb-8">
               Vous n'avez pas encore liké de films.

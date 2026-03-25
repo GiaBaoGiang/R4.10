@@ -11,7 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
 
 // Services
-import { moviesAPI, likesAPI } from "../../services/api";
+import { likesAPI } from "../../services/api";
 import { genreColors } from "../../services/genreColors";
 
 // Carte de film
@@ -33,11 +33,11 @@ function MovieCard({ movie }) {
   const [isLiked, setIsLiked] = useState(false);
   const { addToCart, isRented } = useCart();
   const { success, warning, error } = useNotification();
-  const { isAuthenticated,  likedMovies, setLikedMovies } = useAuth();
+  const { isAuthenticated, user, likedMovies } = useAuth();
 
   // Vérifier si le film est déjà liké par l'utilisateur
   useEffect(() => {
-    if (isAuthenticated && likedMovies) {
+    if (isAuthenticated() && likedMovies) {
       const liked = likedMovies.some((likedMovie) => likedMovie._id === id);
       setIsLiked(liked);
     }
@@ -48,22 +48,35 @@ function MovieCard({ movie }) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated()) {
       warning("Veuillez vous connecter pour liker");
       return;
     }
 
     try {
       if (isLiked) {
-        await likesAPI.unlike(movie._id);
+        const likesRes = await likesAPI.getByMovieId(id);
+        const likesList = likesRes.data || [];
+        const currentUserId = user?._id || user?.id;
+        const myLike = likesList.find((like) => {
+          const likeUserId = like.user?._id || like.user?.id || like.user;
+          return likeUserId === currentUserId;
+        });
+
+        if (!myLike?.id) {
+          warning("Like introuvable pour ce film");
+          return;
+        }
+
+        await likesAPI.unlike(myLike.id);
         setIsLiked(false);
         setLikes(likes - 1);
-        success("Film retiré de vos favoris");
+        success("Like retiré");
       } else {
         await likesAPI.like(movie._id);
         setIsLiked(true);
         setLikes(likes + 1);
-        success("Film ajouté à vos favoris");
+        success("Film ajouté à vos likes");
       }
     } catch (err) {
       error("Erreur lors du like du film");

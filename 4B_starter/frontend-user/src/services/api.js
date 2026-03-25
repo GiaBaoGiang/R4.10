@@ -190,7 +190,7 @@ export const moviesAPI = {
    * Obtenir les films likés par un utilisateur
    */
   getLikedByUser: async () => {
-    return await fetchAPI("/movies/liked");
+    return await fetchAPI("/auth/me/likes");
   },
 
 
@@ -283,14 +283,14 @@ export const likesAPI = {
    * Obtenir les likes d'un film
    */
   getByMovieId: async (movieId) => {
-    //TODO
+    return await fetchAPI(`/likes/movie/${movieId}`);
   },
 
   /**
    * Obtenir les likes d'un utilisateur
    */
-  getMylikes: async (userId) => {
-    //TODO
+  getMylikes: async () => {
+    return await fetchAPI("/likes/my-likes");
   },
 
   /**
@@ -298,7 +298,10 @@ export const likesAPI = {
    * @param {string} movieId - ID du film à liker
    */
   like: async (movieId) => {
-    //TODO
+    return await fetchAPI("/likes", {
+      method: "POST",
+      body: JSON.stringify({ movieId }),
+    });
   },
 
   /**
@@ -306,7 +309,9 @@ export const likesAPI = {
    * @param {string} id - ID du like à supprimer
    */
   unlike: async (id) => {
-    //TODO
+    return await fetchAPI(`/likes/${id}`, {
+      method: "DELETE",
+    });
   },
 };
 
